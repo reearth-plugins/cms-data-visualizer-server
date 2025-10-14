@@ -1,0 +1,5 @@
+{
+  "outputDirectory": ".",
+  "buildCommand": "echo 'skip build'",
+  "installCommand": "corepack enable && yarn install --immutable"
+}

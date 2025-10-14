@@ -1,0 +1,46 @@
+{
+  "name": "cms-data-visualizer-server",
+  "version": "1.0.0",
+  "description": "Node.js server for Re-Earth visualizer plugin with CMS integration",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev:local": "NODE_NO_WARNINGS=1 VERCEL_DEBUG=1 vercel dev --listen 5200",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@vercel/node": "5.3.24",
+    "axios": "1.12.2",
+    "cors": "2.8.5",
+    "form-data": "4.0.4",
+    "multer": "2.0.2",
+    "uuid": "13.0.0",
+    "zod": "3.22.4"
+  },
+  "devDependencies": {
+    "@types/cors": "2.8.19",
+    "@types/multer": "2.0.0",
+    "@types/node": "24.7.0",
+    "@typescript-eslint/eslint-plugin": "8.46.0",
+    "@typescript-eslint/parser": "8.46.0",
+    "@vitest/coverage-v8": "3.2.4",
+    "eslint": "9.37.0",
+    "eslint-config-reearth": "0.3.8",
+    "prettier": "3.6.2",
+    "typescript": "5.9.3",
+    "vercel": "44.2.2",
+    "vitest": "3.2.4"
+  },
+  "engines": {
+    "node": "22.x"
+  },
+  "license": "MIT",
+  "packageManager": "yarn@4.10.3"
+}
