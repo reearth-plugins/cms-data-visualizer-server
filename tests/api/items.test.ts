@@ -63,9 +63,13 @@ describe('/api/items', () => {
           items: [
             {
               id: "item_1",
-              title: "Test Title",
-              description: "Test Description",
-              internal: "Internal Note"
+              fields: [
+                { id: "f1", key: "title", value: "Test Title" },
+                { id: "f2", key: "description", value: "Test Description" },
+                { id: "f3", key: "internal", value: "Internal Note" }
+              ],
+              createdAt: "2024-01-01T00:00:00Z",
+              updatedAt: "2024-01-01T01:00:00Z"
             }
           ],
           totalCount: 1
@@ -92,8 +96,12 @@ describe('/api/items', () => {
           items: [
             {
               id: "item_1",
-              title: "Test Title",
-              description: "Test Description"
+              fields: [
+                { id: "f1", key: "title", value: "Test Title" },
+                { id: "f2", key: "description", value: "Test Description" }
+              ],
+              createdAt: "2024-01-01T00:00:00Z",
+              updatedAt: "2024-01-01T01:00:00Z"
             }
           ],
           totalCount: 1

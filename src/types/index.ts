@@ -17,15 +17,6 @@ export type CMSResponse = {
   totalCount?: number;
 };
 
-export type TransformedItem = {
-  id: string;
-  [key: string]: string | number | object | boolean | null;
-};
-
-export type ItemsResponse = {
-  items: TransformedItem[];
-  totalCount?: number;
-};
 
 export type ApiResponse<T> = {
   success: boolean;

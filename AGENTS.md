@@ -4,7 +4,7 @@ This is the backend API server for the CMS Data Visualizer, built with Node.js a
 
 ## Project Overview
 
-A Node.js backend that provides a general-purpose REST API endpoint for retrieving and transforming data from Re:Earth CMS models. The server acts as a proxy to the Re:Earth CMS Integration API with field transformation and filtering capabilities.
+A Node.js backend that provides a general-purpose REST API endpoint for retrieving data from Re:Earth CMS models. The server acts as a proxy to the Re:Earth CMS Integration API with optional field filtering capabilities. All items from the configured model are retrieved automatically.
 
 ## Tech Stack
 
@@ -42,33 +42,25 @@ src/
 
 ### Data Retrieval
 
-- **`GET /api/items`** - Retrieve and transform CMS model items
+- **`GET /api/items`** - Retrieve CMS model items with optional filtering
 
 ## Key Features
 
-### Response Transformation
+### Response Format
 
-The server transforms CMS field arrays into clean key-value objects:
+The server returns data in the original CMS structure with optional field filtering:
 
-**CMS Format (Internal):**
+**API Response Format:**
 
 ```json
 {
   "id": "item_1",
   "fields": [
-    {"key": "title", "value": "Sample Title"},
-    {"key": "description", "value": "Sample Description"}
-  ]
-}
-```
-
-**API Response (Transformed):**
-
-```json
-{
-  "id": "item_1", 
-  "title": "Sample Title",
-  "description": "Sample Description"
+    {"id": "field_1", "key": "title", "value": "Sample Title"},
+    {"id": "field_2", "key": "description", "value": "Sample Description"}
+  ],
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T01:00:00Z"
 }
 ```
 
@@ -100,11 +92,11 @@ yarn test:coverage        # Run tests with coverage report
 
 ### Test Coverage
 
-- Items API endpoint with field transformation and filtering
+- Items API endpoint with field filtering
 - CMS service integration
 - Utility functions (auth, validation, response)
 - Error handling scenarios
-- Field transformation logic
+- Field filtering logic
 
 ## Environment Configuration
 
@@ -131,7 +123,6 @@ RESPONSE_FIELDS=title,description,author    # Field filtering (comma-separated)
 The server integrates with **Re:Earth CMS Integration API** for:
 
 - **Data retrieval** from specified CMS models
-- **Field transformation** from array format to key-value objects
 - **Server-side filtering** of response fields
 - **Authentication** via API tokens
 
@@ -166,8 +157,12 @@ All API responses follow a consistent format:
     "items": [
       {
         "id": "item_1",
-        "title": "Transformed Title",
-        "description": "Transformed Description"
+        "fields": [
+          {"id": "field_1", "key": "title", "value": "Sample Title"},
+          {"id": "field_2", "key": "description", "value": "Sample Description"}
+        ],
+        "createdAt": "2024-01-01T00:00:00Z",
+        "updatedAt": "2024-01-01T01:00:00Z"
       }
     ],
     "totalCount": 1

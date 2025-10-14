@@ -33,10 +33,10 @@ Retrieves items from a configured CMS model using the Re:Earth CMS Integration A
 This endpoint internally calls:
 
 ```text
-GET /models/{modelId}/items
+GET /models/{modelId}/items?perPage=10000&page=1
 ```
 
-on the Re:Earth CMS Integration API, where `{modelId}` is configured via environment variables.
+on the Re:Earth CMS Integration API, where `{modelId}` is configured via environment variables. The server automatically requests all items by setting a large `perPage` value.
 
 #### Query Parameters
 
@@ -50,19 +50,15 @@ GET /items
 
 #### Response
 
-The response transforms CMS field arrays into key-value pairs at the item root level and applies server-side filtering.
-
-**Response Transformation:**
-- CMS fields array is transformed to key-value pairs at the item root level
-- Each field's `key` becomes a property name, and `value` becomes the property value
-- The `id` field is always included at the root level
-- System fields like `createdAt` and `updatedAt` are ignored
+The response returns data in the original CMS structure with optional server-side field filtering applied.
 
 **Field Filtering Behavior:**
+
 - Fields to include are configured via the `RESPONSE_FIELDS` environment variable
-- If `RESPONSE_FIELDS` is configured, only the specified field keys will be included as properties
-- If `RESPONSE_FIELDS` is not configured, all fields from the CMS response are transformed
+- If `RESPONSE_FIELDS` is configured, only fields with keys matching the specified list will be included
+- If `RESPONSE_FIELDS` is not configured, all fields from the CMS response are returned
 - Field names should match the exact field keys in the CMS model schema
+- System fields like `id`, `createdAt`, and `updatedAt` are always included when present
 
 **Success Response (200)**:
 
@@ -71,14 +67,27 @@ The response transforms CMS field arrays into key-value pairs at the item root l
   "items": [
     {
       "id": "item_id_1",
-      "title": "Sample Title",
-      "description": "Sample Description"
+      "fields": [
+        {
+          "id": "field_1",
+          "key": "title",
+          "value": "Sample Title"
+        },
+        {
+          "id": "field_2", 
+          "key": "description",
+          "value": "Sample Description"
+        }
+      ],
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T01:00:00Z"
     }
-  ]
+  ],
+  "totalCount": 1
 }
 ```
 
-*Note: The above example shows a transformed and filtered response when `RESPONSE_FIELDS=title,description` is configured. Fields are transformed from the CMS fields array to key-value pairs at the item root level.*
+*Note: The above example shows a filtered response when `RESPONSE_FIELDS=title,description` is configured. Only fields with matching keys are included in the fields array.*
 
 **Error Responses:**
 

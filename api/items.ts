@@ -2,7 +2,7 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import cors from "cors";
 
 import { cmsService } from "../src/services/cms.js";
-import { CMSItem, TransformedItem, ItemsResponse } from "../src/types";
+import { CMSItem, CMSResponse } from "../src/types";
 import { authenticate, AuthenticatedRequest } from "../src/utils/auth.js";
 import { sendSuccess, sendError } from "../src/utils/response.js";
 
@@ -25,22 +25,30 @@ function promisify(fn: (req: VercelRequest, res: VercelResponse, callback: (err?
     });
 }
 
-function transformItem(item: CMSItem, fieldsToInclude?: string[]): TransformedItem {
-  const transformed: TransformedItem = {
-    id: item.id,
-  };
-
-  // Transform fields array to key-value pairs
-  if (item.fields && Array.isArray(item.fields)) {
-    for (const field of item.fields) {
-      // Apply field filtering if specified
-      if (!fieldsToInclude || fieldsToInclude.includes(field.key)) {
-        transformed[field.key] = field.value;
-      }
-    }
+function filterFields(item: CMSItem, fieldsToInclude?: string[]): CMSItem {
+  if (!fieldsToInclude || fieldsToInclude.length === 0) {
+    return item;
   }
 
-  return transformed;
+  const filtered: CMSItem = {
+    id: item.id,
+    createdAt: item.createdAt,
+    fields: [],
+  };
+  
+  // Include optional updatedAt if present
+  if (item.updatedAt) {
+    filtered.updatedAt = item.updatedAt;
+  }
+
+  // Filter fields based on fieldsToInclude
+  if (item.fields && Array.isArray(item.fields)) {
+    filtered.fields = item.fields.filter(field => 
+      fieldsToInclude.includes(field.key)
+    );
+  }
+
+  return filtered;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -88,14 +96,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // Fetch items from CMS
       const cmsResponse = await cmsService.getItems(modelId);
       
-      // Transform and filter items
-      const transformedItems = cmsResponse.items.map(item => 
-        transformItem(item, fieldsToInclude)
+      // Apply field filtering if configured
+      const filteredItems = cmsResponse.items.map(item => 
+        filterFields(item, fieldsToInclude)
       );
 
-      // Return response with transformed items
-      const response: ItemsResponse = {
-        items: transformedItems,
+      // Return response with original CMS structure
+      const response: CMSResponse = {
+        items: filteredItems,
         ...(cmsResponse.totalCount !== undefined && { totalCount: cmsResponse.totalCount })
       };
 
