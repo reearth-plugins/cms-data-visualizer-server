@@ -19,6 +19,10 @@ class CMSService {
         `${CMS_BASE_URL}/models/${modelId}/items`,
         {
           headers: this.getHeaders(),
+          params: {
+            perPage: 10000, // Large number to ensure we get all items
+            page: 1
+          }
         }
       );
 
