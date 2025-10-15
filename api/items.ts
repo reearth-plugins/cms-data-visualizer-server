@@ -6,10 +6,8 @@ import { CMSItem, CMSResponse } from "../src/types";
 import { authenticate, AuthenticatedRequest } from "../src/utils/auth.js";
 import { sendSuccess, sendError } from "../src/utils/response.js";
 
-const corsOrigin = process.env.CORS_ORIGIN === "null" ? null : process.env.CORS_ORIGIN;
-
 const corsMiddleware = cors({
-  origin: corsOrigin || false,
+  origin: process.env.CORS_ORIGIN || false,
   credentials: true,
 });
 

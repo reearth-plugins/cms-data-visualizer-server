@@ -15,18 +15,51 @@ class CMSService {
 
   async getItems(modelId: string): Promise<CMSResponse> {
     try {
-      const response = await axios.get(
+      // Fetch first page to get total count
+      const firstResponse = await axios.get(
         `${CMS_BASE_URL}/models/${modelId}/items`,
         {
           headers: this.getHeaders(),
           params: {
-            perPage: 10000, // Large number to ensure we get all items
+            perPage: 100,
             page: 1
           }
         }
       );
 
-      return response.data;
+      const totalCount = firstResponse.data.totalCount;
+      const totalPages = Math.ceil(totalCount / 100);
+      let allItems = [...firstResponse.data.items];
+
+      // Fetch remaining pages if needed
+      if (totalPages > 1) {
+        const pagePromises = [];
+        for (let page = 2; page <= totalPages; page++) {
+          pagePromises.push(
+            axios.get(
+              `${CMS_BASE_URL}/models/${modelId}/items`,
+              {
+                headers: this.getHeaders(),
+                params: {
+                  perPage: 100,
+                  page
+                }
+              }
+            )
+          );
+        }
+
+        const remainingResponses = await Promise.all(pagePromises);
+        remainingResponses.forEach(response => {
+          allItems = allItems.concat(response.data.items);
+        });
+      }
+
+      return {
+        ...firstResponse.data,
+        items: allItems,
+        totalCount
+      };
     } catch (error) {
       console.error("Error fetching items from CMS:", error);
       throw error;
