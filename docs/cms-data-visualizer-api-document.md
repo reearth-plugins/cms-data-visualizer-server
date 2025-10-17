@@ -110,7 +110,8 @@ The server requires the following environment variables to be configured:
 |----------|-------------|---------|
 | `REEARTH_CMS_INTEGRATION_API_BASE_URL` | Base URL for the Re:Earth CMS Integration API | `https://api.reearth.dev` |
 | `REEARTH_CMS_INTEGRATION_API_ACCESS_TOKEN` | Bearer token for CMS API authentication | `your-cms-token` |
-| `REEARTH_CMS_PROJECT_MODEL_ID` | The model ID to query items from | `your-model-id` |
+| `REEARTH_CMS_PROJECT_ID` | The project ID containing the model | `your-project-id` |
+| `REEARTH_CMS_MODEL_ID` | The model ID to query items from | `your-model-id` |
 | `API_SECRET_KEY` | Secret key for authenticating client requests | `your_secret_key` |
 | `RESPONSE_FIELDS` | Comma-separated list of fields to include in API responses | `all fields` |
 

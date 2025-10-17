@@ -39,7 +39,7 @@ describe('/api/items', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Set default environment variables
-    process.env.REEARTH_CMS_PROJECT_MODEL_ID = 'test-model-id';
+    process.env.REEARTH_CMS_MODEL_ID = 'test-model-id';
     delete process.env.RESPONSE_FIELDS;
   });
 
@@ -110,7 +110,7 @@ describe('/api/items', () => {
     });
 
     it('should handle missing model ID configuration', async () => {
-      delete process.env.REEARTH_CMS_PROJECT_MODEL_ID;
+      delete process.env.REEARTH_CMS_MODEL_ID;
 
       const req = createMockRequest({
         method: 'GET',
