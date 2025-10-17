@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { CMSResponse, CMSModel } from "../types";
+import { CMSResponse, CMSModel, CMSAssetsResponse } from "../types";
 
 const CMS_BASE_URL = process.env.REEARTH_CMS_INTEGRATION_API_BASE_URL;
 const CMS_TOKEN = process.env.REEARTH_CMS_INTEGRATION_API_ACCESS_TOKEN;
@@ -62,6 +62,59 @@ class CMSService {
       };
     } catch (error) {
       console.error("Error fetching items from CMS:", error);
+      throw error;
+    }
+  }
+
+  async getAssets(projectId: string): Promise<CMSAssetsResponse> {
+    try {
+      // Fetch first page to get total count
+      const firstResponse = await axios.get(
+        `${CMS_BASE_URL}/projects/${projectId}/assets`,
+        {
+          headers: this.getHeaders(),
+          params: {
+            perPage: 100,
+            page: 1
+          }
+        }
+      );
+
+      const totalCount = firstResponse.data.totalCount;
+      const totalPages = Math.ceil(totalCount / 100);
+      let allAssets = [...firstResponse.data.assets];
+
+      // Fetch remaining pages if needed
+      if (totalPages > 1) {
+        const pagePromises = [];
+        for (let page = 2; page <= totalPages; page++) {
+          pagePromises.push(
+            axios.get(
+              `${CMS_BASE_URL}/projects/${projectId}/assets`,
+              {
+                headers: this.getHeaders(),
+                params: {
+                  perPage: 100,
+                  page
+                }
+              }
+            )
+          );
+        }
+
+        const remainingResponses = await Promise.all(pagePromises);
+        remainingResponses.forEach(response => {
+          allAssets = allAssets.concat(response.data.assets);
+        });
+      }
+
+      return {
+        ...firstResponse.data,
+        assets: allAssets,
+        totalCount
+      };
+    } catch (error) {
+      console.error("Error fetching assets from CMS:", error);
       throw error;
     }
   }

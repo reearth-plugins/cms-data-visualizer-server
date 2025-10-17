@@ -74,12 +74,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       );
     }
 
-    const modelId = process.env.REEARTH_CMS_PROJECT_MODEL_ID;
-    if (!modelId) {
+    const modelId = process.env.REEARTH_CMS_MODEL_ID;
+    const projectId = process.env.REEARTH_CMS_PROJECT_ID;
+    if (!modelId || !projectId) {
       return sendError(
         res,
         "CONFIGURATION_ERROR",
-        "Model ID not configured",
+        "Model ID or Project ID not configured",
         500
       );
     }
@@ -91,6 +92,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       : undefined;
 
     try {
+      // Fetch assets from CMS
+      const assetsResponse = await cmsService.getAssets(projectId);
+
       // Fetch schema from CMS
       const schemaResponse = await cmsService.getModel(modelId);
 
@@ -98,13 +102,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const itemsResponse = await cmsService.getItems(modelId);
 
       // Append schema fields' names to items' fields
+      // Replace asset field values with corresponding asset URLs
       const items = itemsResponse.items.map(item => ({
         ...item,
         fields: item.fields.map(field => {
           const schemaField = schemaResponse.schema.fields.find(f => f.key === field.key);
           return {
             ...field,
-            name: schemaField ? schemaField.name : undefined
+            name: schemaField ? schemaField.name : undefined,
+            value: field.type === 'asset' && typeof field.value === 'string' ? assetsResponse.assets.find(a => a.id === field.value)?.url || field.value : field.type ==='asset' && Array.isArray(field.value) ? field.value.map(v => assetsResponse.assets.find(a => a.id === v)?.url || v) : field.value
           };
         })
       }));

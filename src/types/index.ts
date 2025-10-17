@@ -47,6 +47,21 @@ export type CMSModel = {
   updatedAt: string;
 };
 
+export type CMSAsset = {
+  id: string;
+  url: string;
+  fileName: string;
+  contentType: string;
+  size: number;
+  createdAt: string;
+  updatedAt?: string;
+};
+
+export type CMSAssetsResponse = {
+  assets: CMSAsset[];
+  totalCount?: number;
+};
+
 
 export type ApiResponse<T> = {
   success: boolean;

@@ -145,7 +145,8 @@ Authorization: Bearer <your_api_secret_key>
 # Re:Earth CMS Integration API Configuration
 REEARTH_CMS_INTEGRATION_API_BASE_URL=https://your-cms-domain/api
 REEARTH_CMS_INTEGRATION_API_ACCESS_TOKEN=your_cms_integration_access_token
-REEARTH_CMS_PROJECT_MODEL_ID=your_model_id
+REEARTH_CMS_PROJECT_ID=your_project_id
+REEARTH_CMS_MODEL_ID=your_model_id
 
 # Authentication
 API_SECRET_KEY=your_secure_random_string
