@@ -91,18 +91,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       : undefined;
 
     try {
+      // Fetch schema from CMS
+      const schemaResponse = await cmsService.getModel(modelId);
+
       // Fetch items from CMS
-      const cmsResponse = await cmsService.getItems(modelId);
+      const itemsResponse = await cmsService.getItems(modelId);
+
+      // Append schema fields' names to items' fields
+      const items = itemsResponse.items.map(item => ({
+        ...item,
+        fields: item.fields.map(field => {
+          const schemaField = schemaResponse.schema.fields.find(f => f.key === field.key);
+          return {
+            ...field,
+            name: schemaField ? schemaField.name : undefined
+          };
+        })
+      }));
       
       // Apply field filtering if configured
-      const filteredItems = cmsResponse.items.map(item => 
+      const filteredItems = items.map(item =>
         filterFields(item, fieldsToInclude)
       );
 
       // Return response with original CMS structure
       const response: CMSResponse = {
         items: filteredItems,
-        ...(cmsResponse.totalCount !== undefined && { totalCount: cmsResponse.totalCount })
+        ...(itemsResponse.totalCount !== undefined && { totalCount: itemsResponse.totalCount })
       };
 
       return sendSuccess(res, response, 200);
