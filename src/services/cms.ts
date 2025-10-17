@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { CMSResponse } from "../types";
+import { CMSResponse, CMSModel } from "../types";
 
 const CMS_BASE_URL = process.env.REEARTH_CMS_INTEGRATION_API_BASE_URL;
 const CMS_TOKEN = process.env.REEARTH_CMS_INTEGRATION_API_ACCESS_TOKEN;
@@ -62,6 +62,22 @@ class CMSService {
       };
     } catch (error) {
       console.error("Error fetching items from CMS:", error);
+      throw error;
+    }
+  }
+
+  async getModel(modelId: string): Promise<CMSModel> {
+    try {
+      const response = await axios.get(
+        `${CMS_BASE_URL}/models/${modelId}`,
+        {
+          headers: this.getHeaders()
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching model from CMS:", error);
       throw error;
     }
   }
