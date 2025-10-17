@@ -110,7 +110,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return {
             ...field,
             name: schemaField ? schemaField.name : undefined,
-            value: field.type === 'asset' && typeof field.value === 'string' ? assetsResponse.assets.find(a => a.id === field.value)?.url || field.value : field.type ==='asset' && Array.isArray(field.value) ? field.value.map(v => assetsResponse.assets.find(a => a.id === v)?.url || v) : field.value
+            value: field.type === 'asset' && typeof field.value === 'string' ? 
+              assetsResponse.items?.find(a => a.id === field.value)?.url || field.value 
+              : field.type ==='asset' && Array.isArray(field.value) ? 
+                field.value.map(v => assetsResponse.items?.find(a => a.id === v)?.url || v) 
+                : field.value
           };
         })
       }));
