@@ -71,11 +71,15 @@ The response returns data in the original CMS structure with optional server-sid
         {
           "id": "field_1",
           "key": "title",
+          "name": "Title",
+          "type": "text",
           "value": "Sample Title"
         },
         {
           "id": "field_2", 
           "key": "description",
+          "name": "Description", 
+          "type": "textarea",
           "value": "Sample Description"
         }
       ],
