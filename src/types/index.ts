@@ -58,7 +58,7 @@ export type CMSAsset = {
 };
 
 export type CMSAssetsResponse = {
-  assets: CMSAsset[];
+  items: CMSAsset[] | null;
   totalCount?: number;
 };
 

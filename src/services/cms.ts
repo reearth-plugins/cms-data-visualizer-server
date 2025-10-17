@@ -80,9 +80,9 @@ class CMSService {
         }
       );
 
-      const totalCount = firstResponse.data.totalCount;
+      const totalCount = firstResponse.data.totalCount || 0;
       const totalPages = Math.ceil(totalCount / 100);
-      let allAssets = [...firstResponse.data.assets];
+      let allAssets = firstResponse.data.items ? [...firstResponse.data.items] : [];
 
       // Fetch remaining pages if needed
       if (totalPages > 1) {
@@ -104,13 +104,14 @@ class CMSService {
 
         const remainingResponses = await Promise.all(pagePromises);
         remainingResponses.forEach(response => {
-          allAssets = allAssets.concat(response.data.assets);
+          if (response.data.items) {
+            allAssets = allAssets.concat(response.data.items);
+          }
         });
       }
 
       return {
-        ...firstResponse.data,
-        assets: allAssets,
+        items: allAssets,
         totalCount
       };
     } catch (error) {
