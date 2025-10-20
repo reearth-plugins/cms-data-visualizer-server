@@ -9,7 +9,8 @@ A Node.js backend that provides a general-purpose REST API endpoint for retrievi
 ## Tech Stack
 
 - **Node.js 22.x** with **TypeScript 5.9.3** (ES Modules)
-- **Vercel** serverless functions for deployment
+- **Google Cloud Functions** for serverless deployment
+- **Functions Framework** for local development and deployment
 - **Axios** for HTTP requests to CMS Integration API
 - **CORS** for cross-origin request handling
 - **Zod** for runtime type validation utilities
@@ -17,11 +18,10 @@ A Node.js backend that provides a general-purpose REST API endpoint for retrievi
 
 ## Architecture
 
-### Serverless Functions
+### Google Cloud Functions
 
 ```text
-api/
-└── items.ts              # GET /items endpoint - general CMS data retrieval
+index.js                  # HTTP Cloud Function - general CMS data retrieval
 ```
 
 ### Core Services
@@ -42,7 +42,7 @@ src/
 
 ### Data Retrieval
 
-- **`GET /api/items`** - Retrieve CMS model items with optional filtering
+- **`GET /`** - Retrieve CMS model items with optional filtering (Cloud Function HTTP trigger)
 
 ## Key Features
 
@@ -75,8 +75,9 @@ Configure which fields to include via environment variables:
 ## Development Commands
 
 ```bash
-yarn dev:local             # Start development server on port 5200
+yarn dev:local             # Start development server using Functions Framework on port 5200
 yarn build                 # Build TypeScript to dist/
+yarn start                 # Start Cloud Function locally using Functions Framework
 yarn type-check           # TypeScript type checking
 yarn lint                 # Run ESLint
 yarn lint:fix             # Fix ESLint issues
@@ -131,11 +132,26 @@ API documentation available in `docs/cms-data-visualizer-api-document.md`.
 
 ## Deployment
 
-Designed for **Vercel** serverless deployment:
+Designed for **Google Cloud Functions** serverless deployment:
 
-1. Connect repository to Vercel
-2. Configure environment variables in dashboard  
-3. Auto-deploy on push to main branch
+### Local Development
+```bash
+yarn install
+yarn dev:local    # Runs on http://localhost:5200
+```
+
+### Deploy to Google Cloud
+```bash
+gcloud functions deploy cms-data-visualizer \
+  --gen2 \
+  --runtime=nodejs22 \
+  --region=us-central1 \
+  --source=. \
+  --entry-point=items \
+  --trigger=http \
+  --allow-unauthenticated \
+  --set-env-vars="REEARTH_CMS_INTEGRATION_API_BASE_URL=your_value,REEARTH_CMS_INTEGRATION_API_ACCESS_TOKEN=your_token,REEARTH_CMS_PROJECT_ID=your_project_id,REEARTH_CMS_MODEL_ID=your_model_id,API_SECRET_KEY=your_secret_key,CORS_ORIGIN=null"
+```
 
 ## CORS Configuration
 

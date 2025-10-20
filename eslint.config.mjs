@@ -4,6 +4,15 @@ import config from "eslint-config-reearth";
 export default [
   ...config("cms-data-visualizer-server", { reactRecommended: true }),
   {
+    files: ["index.js", "src/**/*.{ts,js}"],
+    languageOptions: {
+      globals: {
+        process: "readonly",
+        console: "readonly",
+      },
+    },
+  },
+  {
     files: ["tests/**/*.{ts,tsx}"],
     rules: {
       "@typescript-eslint/no-explicit-any": "off",

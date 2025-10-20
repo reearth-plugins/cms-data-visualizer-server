@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { CMSResponse, CMSModel, CMSAssetsResponse } from "../types";
+import { CMSResponse, CMSModel, CMSAssetsResponse } from "../types/index.js";
 
 const CMS_BASE_URL = process.env.REEARTH_CMS_INTEGRATION_API_BASE_URL;
 const CMS_TOKEN = process.env.REEARTH_CMS_INTEGRATION_API_ACCESS_TOKEN;

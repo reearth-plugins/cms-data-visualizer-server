@@ -5,9 +5,10 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev:local": "NODE_NO_WARNINGS=1 VERCEL_DEBUG=1 vercel dev --listen 5200",
+    "dev": "yarn build && functions-framework --target=items --source=./dist --port=5200",
     "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "functions-framework --target=items --source=./dist",
+    "deploy": "./deploy.sh",
     "type-check": "tsc --noEmit",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
@@ -16,9 +17,10 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@vercel/node": "5.3.24",
+    "@google-cloud/functions-framework": "3.4.2",
     "axios": "1.12.2",
     "cors": "2.8.5",
+    "dotenv": "17.2.3",
     "form-data": "4.0.4",
     "multer": "2.0.2",
     "uuid": "13.0.0",
@@ -35,7 +37,6 @@
     "eslint-config-reearth": "0.3.8",
     "prettier": "3.6.2",
     "typescript": "5.9.3",
-    "vercel": "44.2.2",
     "vitest": "3.2.4"
   },
   "engines": {

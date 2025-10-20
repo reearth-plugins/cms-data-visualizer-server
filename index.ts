@@ -1,18 +1,20 @@
-import { VercelRequest, VercelResponse } from "@vercel/node";
-import cors from "cors";
+import 'dotenv/config';
+import { http } from '@google-cloud/functions-framework';
+import type { Request, Response } from '@google-cloud/functions-framework';
+import cors from 'cors';
 
-import { cmsService } from "../src/services/cms.js";
-import { CMSItem, CMSResponse } from "../src/types";
-import { authenticate, AuthenticatedRequest } from "../src/utils/auth.js";
-import { sendSuccess, sendError } from "../src/utils/response.js";
+import { cmsService } from './src/services/cms.js';
+import { CMSItem, CMSResponse } from './src/types/index.js';
+import { authenticate } from './src/utils/auth.js';
+import { sendSuccess, sendError } from './src/utils/response.js';
 
 const corsMiddleware = cors({
   origin: process.env.CORS_ORIGIN || false,
   credentials: true,
 });
 
-function promisify(fn: (req: VercelRequest, res: VercelResponse, callback: (err?: Error) => void) => void) {
-  return (req: VercelRequest, res: VercelResponse) =>
+function promisify(fn: (req: Request, res: Response, callback: (err?: Error) => void) => void) {
+  return (req: Request, res: Response) =>
     new Promise((resolve, reject) => {
       fn(req, res, (result?: Error) => {
         if (result instanceof Error) {
@@ -49,27 +51,28 @@ function filterFields(item: CMSItem, fieldsToInclude?: string[]): CMSItem {
   return filtered;
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+// Register HTTP function with Google Cloud Functions
+http('items', async (req: Request, res: Response) => {
   try {
     // Apply CORS middleware
     await promisify(corsMiddleware)(req, res);
 
     // Only allow GET requests
-    if (req.method !== "GET") {
+    if (req.method !== 'GET') {
       return sendError(
         res,
-        "METHOD_NOT_ALLOWED",
+        'METHOD_NOT_ALLOWED',
         `Method ${req.method} not allowed`,
         405
       );
     }
 
     // Authenticate request
-    if (!authenticate(req as AuthenticatedRequest)) {
+    if (!authenticate(req as any)) {
       return sendError(
         res,
-        "UNAUTHORIZED",
-        "Invalid or missing authentication token",
+        'UNAUTHORIZED',
+        'Invalid or missing authentication token',
         401
       );
     }
@@ -79,8 +82,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!modelId || !projectId) {
       return sendError(
         res,
-        "CONFIGURATION_ERROR",
-        "Model ID or Project ID not configured",
+        'CONFIGURATION_ERROR',
+        'Model ID or Project ID not configured',
         500
       );
     }
@@ -88,7 +91,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Get field filtering configuration from environment
     const responseFieldsEnv = process.env.RESPONSE_FIELDS;
     const fieldsToInclude = responseFieldsEnv 
-      ? responseFieldsEnv.split(",").map(field => field.trim())
+      ? responseFieldsEnv.split(',').map(field => field.trim())
       : undefined;
 
     try {
@@ -103,24 +106,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       // Append schema fields' names to items' fields
       // Replace asset field values with corresponding asset URLs
-      const items = itemsResponse.items.map(item => ({
+      const items = itemsResponse.items.map((item: CMSItem) => ({
         ...item,
-        fields: item.fields.map(field => {
-          const schemaField = schemaResponse.schema.fields.find(f => f.key === field.key);
+        fields: item.fields.map((field: any) => {
+          const schemaField = schemaResponse.schema.fields.find((f: any) => f.key === field.key);
           return {
             ...field,
             name: schemaField ? schemaField.name : undefined,
             value: field.type === 'asset' && typeof field.value === 'string' ? 
-              assetsResponse.items?.find(a => a.id === field.value)?.url || field.value 
+              assetsResponse.items?.find((a: any) => a.id === field.value)?.url || field.value 
               : field.type ==='asset' && Array.isArray(field.value) ? 
-                field.value.map(v => assetsResponse.items?.find(a => a.id === v)?.url || v) 
+                field.value.map((v: any) => assetsResponse.items?.find((a: any) => a.id === v)?.url || v) 
                 : field.value
           };
         })
       }));
       
       // Apply field filtering if configured
-      const filteredItems = items.map(item =>
+      const filteredItems = items.map((item: CMSItem) =>
         filterFields(item, fieldsToInclude)
       );
 
@@ -133,22 +136,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return sendSuccess(res, response, 200);
 
     } catch (error) {
-      console.error("Error fetching items:", error);
+      console.error('Error fetching items:', error);
       return sendError(
         res,
-        "FETCH_FAILED",
-        "Failed to fetch items from CMS",
+        'FETCH_FAILED',
+        'Failed to fetch items from CMS',
         500
       );
     }
 
   } catch (error) {
-    console.error("Unexpected error:", error);
+    console.error('Unexpected error:', error);
     return sendError(
       res,
-      "INTERNAL_ERROR",
-      "An unexpected error occurred",
+      'INTERNAL_ERROR',
+      'An unexpected error occurred',
       500
     );
   }
-}
+});
