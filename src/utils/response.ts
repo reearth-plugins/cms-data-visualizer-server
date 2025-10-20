@@ -1,9 +1,12 @@
-import { VercelResponse } from '@vercel/node';
+import { ApiResponse } from '../types/index.js';
 
-import { ApiResponse } from '../types';
+export type ResponseObject = {
+  status(code: number): ResponseObject;
+  json(body: unknown): void;
+};
 
 export function sendSuccess<T>(
-  res: VercelResponse,
+  res: ResponseObject,
   data: T,
   statusCode = 200,
   total?: number
@@ -18,7 +21,7 @@ export function sendSuccess<T>(
 }
 
 export function sendError(
-  res: VercelResponse,
+  res: ResponseObject,
   code: string,
   message: string,
   statusCode = 400,

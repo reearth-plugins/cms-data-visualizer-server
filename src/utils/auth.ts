@@ -1,8 +1,11 @@
-import { VercelRequest } from "@vercel/node";
-
 export type AuthenticatedRequest = {
-  // No user info needed for static key auth
-} & VercelRequest;
+  headers: Record<string, string | string[] | undefined> & {
+    authorization?: string;
+  };
+  method?: string;
+  body?: unknown;
+  query?: Record<string, string | string[] | undefined>;
+};
 
 export function authenticate(req: AuthenticatedRequest): boolean {
   try {

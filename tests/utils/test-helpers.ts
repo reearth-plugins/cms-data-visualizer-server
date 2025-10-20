@@ -1,13 +1,19 @@
-import { VercelRequest, VercelResponse } from '@vercel/node';
 import { vi } from 'vitest';
+
+export type MockRequest = {
+  method?: string;
+  headers: Record<string, string | string[] | undefined>;
+  body?: unknown;
+  query?: Record<string, string | string[] | undefined>;
+};
 
 // Mock request helper
 export function createMockRequest(options: {
   method?: string;
   headers?: Record<string, string>;
-  body?: any;
+  body?: unknown;
   query?: Record<string, string>;
-}): Partial<VercelRequest> {
+}): MockRequest {
   return {
     method: options.method || 'GET',
     headers: options.headers || {},
@@ -16,9 +22,19 @@ export function createMockRequest(options: {
   };
 }
 
+export type MockResponse = {
+  status: ReturnType<typeof vi.fn>;
+  json: ReturnType<typeof vi.fn>;
+  end: ReturnType<typeof vi.fn>;
+  setHeader: ReturnType<typeof vi.fn>;
+  getHeader: ReturnType<typeof vi.fn>;
+  headersSent: boolean;
+  statusCode: number;
+};
+
 // Mock response helper that includes all necessary methods for CORS
 export function createMockResponse(): {
-  res: Partial<VercelResponse>;
+  res: MockResponse;
   status: ReturnType<typeof vi.fn>;
   json: ReturnType<typeof vi.fn>;
   end: ReturnType<typeof vi.fn>;
@@ -31,7 +47,7 @@ export function createMockResponse(): {
   const getHeader = vi.fn();
   const status = vi.fn(() => ({ json, end }));
 
-  const res = {
+  const res: MockResponse = {
     status,
     json,
     end,
