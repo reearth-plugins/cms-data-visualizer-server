@@ -4,7 +4,7 @@ import type { Request, Response } from '@google-cloud/functions-framework';
 import cors from 'cors';
 
 import { cmsService } from './src/services/cms.js';
-import { CMSItem, CMSResponse } from './src/types/index.js';
+import { CMSItem, CMSResponse, CMSField, CMSSchemaField, CMSAsset } from './src/types/index.js';
 import { authenticate } from './src/utils/auth.js';
 import { sendSuccess, sendError } from './src/utils/response.js';
 
@@ -68,7 +68,7 @@ http('items', async (req: Request, res: Response) => {
     }
 
     // Authenticate request
-    if (!authenticate(req as any)) {
+    if (!authenticate(req as unknown as import('./src/utils/auth.js').AuthenticatedRequest)) {
       return sendError(
         res,
         'UNAUTHORIZED',
@@ -108,28 +108,46 @@ http('items', async (req: Request, res: Response) => {
       // Replace asset field values with corresponding asset URLs
       const items = itemsResponse.items.map((item: CMSItem) => ({
         ...item,
-        fields: item.fields.map((field: any) => {
-          const schemaField = schemaResponse.schema.fields.find((f: any) => f.key === field.key);
+        fields: item.fields.map((field: CMSField) => {
+          const schemaField = schemaResponse.schema.fields.find((f: CMSSchemaField) => f.key === field.key);
           return {
             ...field,
             name: schemaField ? schemaField.name : undefined,
             value: field.type === 'asset' && typeof field.value === 'string' ? 
-              assetsResponse.items?.find((a: any) => a.id === field.value)?.url || field.value 
+              assetsResponse.items?.find((a: CMSAsset) => a.id === field.value)?.url || field.value 
               : field.type ==='asset' && Array.isArray(field.value) ? 
-                field.value.map((v: any) => assetsResponse.items?.find((a: any) => a.id === v)?.url || v) 
+                field.value.map((v: string) => assetsResponse.items?.find((a: CMSAsset) => a.id === v)?.url || v) 
                 : field.value
           };
         })
       }));
       
       // Apply field filtering if configured
-      const filteredItems = items.map((item: CMSItem) =>
+      const fieldFilteredItems = items.map((item: CMSItem) =>
         filterFields(item, fieldsToInclude)
       );
 
+      // Apply data filtering if configured
+      const dataFiltersEnv = process.env.FILTERS;
+      let finalItems = fieldFilteredItems;
+      if (dataFiltersEnv) {
+        const conditions = dataFiltersEnv.split(';').map(cond => cond.trim());
+        finalItems = fieldFilteredItems.filter((item: CMSItem) => {
+          return conditions.every(condition => {
+            const [rawKey, rawValues] = condition.split('===');
+            if (!rawKey || !rawValues) return true; // Skip invalid conditions
+            const key = rawKey.trim();
+            const values = rawValues.split('|').map(v => v.trim());
+            const field = item.fields.find(f => f.key === key);
+            if (!field) return false; // Field not found, exclude item
+            return values.includes(String(field.value));
+          });
+        });
+      }
+
       // Return response with original CMS structure
       const response: CMSResponse = {
-        items: filteredItems,
+        items: finalItems,
         ...(itemsResponse.totalCount !== undefined && { totalCount: itemsResponse.totalCount })
       };
 

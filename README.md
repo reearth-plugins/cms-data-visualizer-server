@@ -159,6 +159,9 @@ CORS_ORIGIN=null  # Use 'null' for plugin integration, or specify exact origins
 ```bash
 # Field Filtering (comma-separated field keys)
 RESPONSE_FIELDS=title,description,author
+
+# Data Filtering (filter items based on field values)
+FILTERS=status===published|draft;category===news;priority===high
 ```
 
 ### Environment Setup Examples
@@ -183,12 +186,44 @@ CORS_ORIGIN=https://your-production-domain.com
 API_SECRET_KEY=your-secure-production-key
 ```
 
-## 🔧 Field Filtering
+## 🔧 Filtering
 
-The server supports server-side field filtering to reduce payload size and improve performance:
+The server supports two types of server-side filtering:
+
+### Field Filtering
+
+Controls which fields are included in the response to reduce payload size:
 
 - **All fields**: Leave `RESPONSE_FIELDS` unset
 - **Specific fields**: Set `RESPONSE_FIELDS=field1,field2,field3`
+
+### Data Filtering
+
+Filters which items are returned based on field values:
+
+- **No filtering**: Leave `FILTERS` unset
+- **With conditions**: Set `FILTERS=field1===value1|value2;field2===value3`
+
+#### Data Filter Syntax
+
+```bash
+# Single condition (OR values)
+FILTERS=status===published|draft
+
+# Multiple conditions (AND logic between conditions)
+FILTERS=status===published;category===news;priority===high
+
+# Mixed examples
+FILTERS=type===article|blog;status===published;author===john|jane
+```
+
+**Filter Rules:**
+
+- Multiple conditions are separated by `;` (AND logic)
+- Multiple values for a condition are separated by `|` (OR logic) 
+- Field-value matching uses `===`
+- String comparison is case-sensitive
+- Items are excluded if any condition fails
 
 ## 🧪 Testing
 
@@ -207,6 +242,7 @@ yarn test:coverage
 
 - ✅ Items API endpoint with schema enhancement
 - ✅ Field filtering logic
+- ✅ Data filtering logic with multiple conditions
 - ✅ CMS service integration
 - ✅ Authentication utilities
 - ✅ Error handling scenarios
@@ -262,6 +298,12 @@ REEARTH_CMS_PROJECT_ID=your_project_id
 REEARTH_CMS_MODEL_ID=your_model_id
 API_SECRET_KEY=your_secret_key
 CORS_ORIGIN=null
+
+# Optional: Filter specific fields in response
+RESPONSE_FIELDS=title,description,status
+
+# Optional: Filter items by field values
+FILTERS=status===published|draft;category===news
 ```
 
 The deploy script will automatically load these variables and deploy your function.
