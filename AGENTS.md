@@ -64,18 +64,31 @@ The server returns data in the original CMS structure with optional field filter
 }
 ```
 
-### Server-Side Field Filtering
+### Server-Side Filtering
 
-Configure which fields to include via environment variables:
+The server supports two types of filtering via environment variables:
+
+#### Field Filtering
+
+Configure which fields to include in responses:
 
 - `RESPONSE_FIELDS=title,description` - Only include specified fields
 - Unset - Include all available fields
 - Always includes `id` field
 
+#### Data Filtering
+
+Filter items based on field values:
+
+- `FILTERS=status===published|draft;category===news` - Filter items by conditions
+- Supports multiple conditions (AND logic) and values (OR logic)
+- Uses `===` for exact matching
+- Unset - Return all items
+
 ## Development Commands
 
 ```bash
-yarn dev:local             # Start development server using Functions Framework on port 5200
+yarn dev             # Start development server using Functions Framework on port 5200
 yarn build                 # Build TypeScript to dist/
 yarn start                 # Start Cloud Function locally using Functions Framework
 yarn type-check           # TypeScript type checking
@@ -118,6 +131,7 @@ CORS_ORIGIN=null
 
 ```bash
 RESPONSE_FIELDS=title,description,author    # Field filtering (comma-separated)
+FILTERS=status===published|draft;category===news  # Data filtering (condition-based)
 ```
 
 ## CMS Integration
@@ -125,7 +139,8 @@ RESPONSE_FIELDS=title,description,author    # Field filtering (comma-separated)
 The server integrates with **Re:Earth CMS Integration API** for:
 
 - **Data retrieval** from specified CMS models
-- **Server-side filtering** of response fields
+- **Server-side field filtering** of response fields
+- **Server-side data filtering** based on field values
 - **Authentication** via API tokens
 
 API documentation available in `docs/cms-data-visualizer-api-document.md`.
@@ -137,7 +152,7 @@ Designed for **Google Cloud Functions** serverless deployment:
 ### Local Development
 ```bash
 yarn install
-yarn dev:local    # Runs on http://localhost:5200
+yarn dev    # Runs on http://localhost:5200
 ```
 
 ### Deploy to Google Cloud
@@ -197,4 +212,135 @@ All API responses follow a consistent format:
     "message": "Human readable error message"
   }
 }
+```
+
+---
+
+## 📋 Important Instructions for Development
+
+### Do what has been asked; nothing more, nothing less
+
+- NEVER create files unless they're absolutely necessary for achieving your goal
+- ALWAYS prefer editing an existing file to creating a new one  
+- NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User
+
+### Markdown Linting Rules (markdownlint)
+
+When editing markdown files, ALWAYS follow these rules to avoid linting errors:
+
+#### MD022 - Headings surrounded by blank lines
+
+**Rule**: Headings should be surrounded by blank lines
+
+**Bad**:
+```markdown
+Some text
+## Heading
+Content immediately after
+```
+
+**Good**:
+```markdown
+Some text
+
+## Heading
+
+Content with proper spacing
+```
+
+#### MD032 - Lists surrounded by blank lines
+
+**Rule**: Lists should be surrounded by blank lines
+
+**Bad**:
+```markdown
+Some text:
+- List item 1
+- List item 2
+More content
+```
+
+**Good**:
+```markdown
+Some text:
+
+- List item 1
+- List item 2
+
+More content
+```
+
+#### Key Points
+
+- Always add blank line BEFORE a heading (except first heading in file)
+- Always add blank line AFTER a heading
+- Always add blank line BEFORE a list
+- Always add blank line AFTER a list
+- This applies to ALL markdown files: README.md, CLAUDE.md, AGENTS.md, docs/*.md
+
+#### Common Mistake Pattern
+
+```markdown
+#### Heading
+Content starts immediately  ❌
+
+**Some bold text:**
+- List item
+Content continues          ❌
+```
+
+#### Correct Pattern
+
+```markdown
+#### Heading
+
+Content with proper spacing ✅
+
+**Some bold text:**
+
+- List item
+
+Content continues          ✅
+```
+
+#### Additional Rules
+
+- **MD024**: Multiple headings with the same content should be avoided
+- **MD025**: Only one H1 heading per document
+- **MD041**: First line in file should be a top level heading
+
+### Example of Properly Formatted Markdown
+
+```markdown
+# Document Title
+
+Brief description here.
+
+## Section Heading
+
+Some explanatory text before the list.
+
+### Subsection
+
+Configuration options:
+
+- Option 1: Description here
+- Option 2: Description here  
+- Option 3: Description here
+
+More content continues here.
+
+#### Code Example
+
+Here's how to use it:
+
+\```bash
+command --option value
+\```
+
+The command above does something important.
+
+## Another Section
+
+And so on...
 ```

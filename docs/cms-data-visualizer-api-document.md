@@ -4,7 +4,7 @@ This document describes the API endpoints provided by the CMS Data Visualizer Se
 
 ## Overview
 
-The server provides a simplified, general-purpose interface to retrieve data from Re:Earth CMS models. It internally uses the Re:Earth CMS Integration API and returns the data directly without modification.
+The server provides a simplified, general-purpose interface to retrieve data from Re:Earth CMS models. It internally uses the Re:Earth CMS Integration API and enhances the data with schema information, optional field filtering, and data filtering capabilities.
 
 ## Authentication
 
@@ -17,7 +17,7 @@ Authorization: Bearer <API_SECRET_KEY>
 ## Base URL
 
 ```text
-https://your-deployment-url.vercel.app
+https://asia-northeast1-YOUR_PROJECT_ID.cloudfunctions.net/cms-data-visualizer
 ```
 
 ## Endpoints
