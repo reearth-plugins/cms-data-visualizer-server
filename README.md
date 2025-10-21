@@ -1,24 +1,23 @@
 # CMS Data Visualizer Server
 
-A Node.js backend API server for the CMS Data Visualizer, built with TypeScript and designed for Vercel serverless deployment. This server provides a general-purpose REST API endpoint for retrieving data from Re:Earth CMS models with enhanced field information and optional filtering capabilities.
+A Node.js backend API server for the CMS Data Visualizer, built with TypeScript and designed for Google Cloud Functions deployment. This server provides a general-purpose REST API endpoint for retrieving data from Re:Earth CMS models with enhanced field information and optional filtering capabilities.
 
 ## ✨ Features
 
 - **🔗 CMS Integration**: Direct integration with Re:Earth CMS Integration API
 - **📊 Enhanced Data**: Automatically enriches item fields with schema metadata (field names, types)
 - **🎯 Field Filtering**: Server-side field filtering via environment configuration
-- **🚀 Serverless Ready**: Optimized for Vercel deployment
+- **🚀 Serverless Ready**: Optimized for Google Cloud Functions deployment
 - **🔐 Secure**: Static API key authentication
 - **📦 Pagination**: Automatic handling of paginated CMS responses
 - **🌐 CORS Support**: Configurable cross-origin request handling
 
 ## 🏗️ Architecture
 
-### Serverless Functions
+### Cloud Functions
 
 ```text
-api/
-└── items.ts              # GET /api/items - CMS data retrieval with schema enhancement
+index.ts                  # HTTP Cloud Function - CMS data retrieval with schema enhancement
 ```
 
 ### Core Services
@@ -61,7 +60,7 @@ cp .env.example .env
 
 ```bash
 # Start development server on port 5200
-yarn dev:local
+yarn dev
 
 # Build TypeScript
 yarn build
@@ -81,7 +80,7 @@ yarn lint:fix
 
 ### Get Items
 
-**`GET /api/items`**
+**`GET /`** (Cloud Function HTTP trigger)
 
 Retrieve all items from the configured CMS model with enhanced field information.
 
@@ -214,24 +213,64 @@ yarn test:coverage
 
 ## 🚀 Deployment
 
-### Vercel (Recommended)
+### Google Cloud Functions (Recommended)
 
-1. **Connect Repository**: Link your GitHub repository to Vercel
-2. **Configure Environment**: Set all required environment variables in Vercel dashboard
-3. **Deploy**: Push to main branch for automatic deployment
+#### Prerequisites
+
+1. **Install Google Cloud CLI**: 
+   ```bash
+   # On macOS
+   brew install --cask google-cloud-sdk
+   ```
+
+2. **Authenticate and Setup**:
+   ```bash
+   gcloud auth login
+   gcloud config set project YOUR_PROJECT_ID
+   ```
+
+3. **Enable Cloud Functions API** (if not already enabled):
+   ```bash
+   gcloud services enable cloudfunctions.googleapis.com
+   ```
+
+#### Deploy
 
 ```bash
-# Using Vercel CLI
-vercel --prod
+# Deploy using the provided script
+yarn deploy
+
+# Or manually
+gcloud functions deploy cms-data-visualizer \
+  --runtime=nodejs22 \
+  --region=asia-northeast1 \
+  --source=./dist \
+  --entry-point=items \
+  --trigger-http \
+  --allow-unauthenticated \
+  --set-env-vars="REEARTH_CMS_INTEGRATION_API_BASE_URL=your_value,..."
 ```
 
-### Manual Deployment
+#### Environment Variables Setup
+
+Create a `.env` file in the root directory with your environment variables:
 
 ```bash
-# Build the project
-yarn build
+REEARTH_CMS_INTEGRATION_API_BASE_URL=https://api.cms.reearth.io/api
+REEARTH_CMS_INTEGRATION_API_ACCESS_TOKEN=your_token
+REEARTH_CMS_PROJECT_ID=your_project_id
+REEARTH_CMS_MODEL_ID=your_model_id
+API_SECRET_KEY=your_secret_key
+CORS_ORIGIN=null
+```
 
-# Deploy built files to your serverless platform
+The deploy script will automatically load these variables and deploy your function.
+
+#### Deployed Function URL
+
+After successful deployment, your function will be available at:
+```
+https://asia-northeast1-YOUR_PROJECT_ID.cloudfunctions.net/cms-data-visualizer
 ```
 
 ## 🔒 Security
@@ -246,7 +285,7 @@ yarn build
 ### Client Example
 
 ```javascript
-const response = await fetch('/api/items', {
+const response = await fetch('https://asia-northeast1-YOUR_PROJECT_ID.cloudfunctions.net/cms-data-visualizer', {
   headers: {
     'Authorization': `Bearer ${API_SECRET_KEY}`,
     'Content-Type': 'application/json'
@@ -293,7 +332,7 @@ CORS_ORIGIN=https://your-domain.com
 
 - Verify `REEARTH_CMS_INTEGRATION_API_BASE_URL` is correct
 - Confirm `REEARTH_CMS_INTEGRATION_API_ACCESS_TOKEN` has proper permissions
-- Check that `REEARTH_CMS_PROJECT_MODEL_ID` exists in your CMS project
+- Check that `REEARTH_CMS_PROJECT_ID` and `REEARTH_CMS_MODEL_ID` exist in your CMS project
 
 ## 📄 License
 
