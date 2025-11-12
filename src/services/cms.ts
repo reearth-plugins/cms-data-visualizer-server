@@ -13,11 +13,11 @@ class CMSService {
     };
   }
 
-  async getItems(modelId: string): Promise<CMSResponse> {
+  async getItems(workspaceId: string, projectId: string, modelId: string): Promise<CMSResponse> {
     try {
       // Fetch first page to get total count
       const firstResponse = await axios.get(
-        `${CMS_BASE_URL}/models/${modelId}/items`,
+        `${CMS_BASE_URL}/${workspaceId}/projects/${projectId}/models/${modelId}/items`,
         {
           headers: this.getHeaders(),
           params: {
@@ -37,7 +37,7 @@ class CMSService {
         for (let page = 2; page <= totalPages; page++) {
           pagePromises.push(
             axios.get(
-              `${CMS_BASE_URL}/models/${modelId}/items`,
+              `${CMS_BASE_URL}/${workspaceId}/projects/${projectId}/models/${modelId}/items`,
               {
                 headers: this.getHeaders(),
                 params: {
@@ -66,11 +66,11 @@ class CMSService {
     }
   }
 
-  async getAssets(projectId: string): Promise<CMSAssetsResponse> {
+  async getAssets(workspaceId: string, projectId: string): Promise<CMSAssetsResponse> {
     try {
       // Fetch first page to get total count
       const firstResponse = await axios.get(
-        `${CMS_BASE_URL}/projects/${projectId}/assets`,
+        `${CMS_BASE_URL}/${workspaceId}/projects/${projectId}/assets`,
         {
           headers: this.getHeaders(),
           params: {
@@ -90,7 +90,7 @@ class CMSService {
         for (let page = 2; page <= totalPages; page++) {
           pagePromises.push(
             axios.get(
-              `${CMS_BASE_URL}/projects/${projectId}/assets`,
+              `${CMS_BASE_URL}/${workspaceId}/projects/${projectId}/assets`,
               {
                 headers: this.getHeaders(),
                 params: {
@@ -120,10 +120,10 @@ class CMSService {
     }
   }
 
-  async getModel(modelId: string): Promise<CMSModel> {
+  async getModel(workspaceId: string, projectId: string, modelId: string): Promise<CMSModel> {
     try {
       const response = await axios.get(
-        `${CMS_BASE_URL}/models/${modelId}`,
+        `${CMS_BASE_URL}/${workspaceId}/projects/${projectId}/models/${modelId}`,
         {
           headers: this.getHeaders()
         }

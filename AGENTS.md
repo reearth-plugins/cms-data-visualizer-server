@@ -119,6 +119,7 @@ Required environment variables for deployment:
 ```bash
 REEARTH_CMS_INTEGRATION_API_BASE_URL=cms_integration_api_base_url
 REEARTH_CMS_INTEGRATION_API_ACCESS_TOKEN=your_cms_integration_access_token
+REEARTH_CMS_WORKSPACE_ID=your_workspace_id
 REEARTH_CMS_PROJECT_ID=your_project_id
 REEARTH_CMS_MODEL_ID=your_model_id
 API_SECRET_KEY=your_api_secret_key
@@ -143,7 +144,7 @@ The server integrates with **Re:Earth CMS Integration API** for:
 - **Server-side data filtering** based on field values
 - **Authentication** via API tokens
 
-API documentation available in `docs/cms-data-visualizer-api-document.md`.
+Authentication and integration details are handled via API tokens as described in the environment configuration section.
 
 ## Deployment
 
