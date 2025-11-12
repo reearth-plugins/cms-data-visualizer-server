@@ -37,7 +37,7 @@ class CMSService {
         for (let page = 2; page <= totalPages; page++) {
           pagePromises.push(
             axios.get(
-              `${CMS_BASE_URL}/models/${modelId}/items`,
+              `${CMS_BASE_URL}/${workspaceId}/projects/${projectId}/models/${modelId}/items`,
               {
                 headers: this.getHeaders(),
                 params: {
