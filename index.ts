@@ -79,11 +79,12 @@ http('items', async (req: Request, res: Response) => {
 
     const modelId = process.env.REEARTH_CMS_MODEL_ID;
     const projectId = process.env.REEARTH_CMS_PROJECT_ID;
-    if (!modelId || !projectId) {
+    const workspaceId = process.env.REEARTH_CMS_WORKSPACE_ID;
+    if (!modelId || !projectId || !workspaceId) {
       return sendError(
         res,
         'CONFIGURATION_ERROR',
-        'Model ID or Project ID not configured',
+        'Model ID, Project ID or Workspace ID not configured',
         500
       );
     }
@@ -96,13 +97,13 @@ http('items', async (req: Request, res: Response) => {
 
     try {
       // Fetch assets from CMS
-      const assetsResponse = await cmsService.getAssets(projectId);
+      const assetsResponse = await cmsService.getAssets(workspaceId, projectId);
 
       // Fetch schema from CMS
-      const schemaResponse = await cmsService.getModel(modelId);
+      const schemaResponse = await cmsService.getModel(workspaceId, projectId, modelId);
 
       // Fetch items from CMS
-      const itemsResponse = await cmsService.getItems(modelId);
+      const itemsResponse = await cmsService.getItems(workspaceId, projectId, modelId);
 
       // Append schema fields' names to items' fields
       // Replace asset field values with corresponding asset URLs
